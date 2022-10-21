@@ -7,18 +7,20 @@ function MenuDropdown() {
         Refactored
       </h1>
       <div className="flex flex-col max-w-[14rem] items-end">
-        <Menu>
+        <Menu as="div" className="relative">
           <Menu.Button
-            className="text-white font-semibold mb-2 
+            className=" text-white font-semibold mb-2 
             px-4 py-2 bg-black bg-opacity-30 rounded-md"
           >
             Options
           </Menu.Button>
-          <Menu.Items className="bg-white p-2 flex flex-col rounded-md">
+          <Menu.Items className="absolute bg-white p-2 flex flex-col rounded-md">
             <Menu.Item className="pb-4">
               {({ active }) => (
                 <a
-                  className={`${active && "bg-blue-500"}`}
+                  className={`${
+                    active ? "bg-blue-500 text-white" : "bg-white text-black"
+                  }`}
                   href="/account-settings"
                 >
                   Account settings
