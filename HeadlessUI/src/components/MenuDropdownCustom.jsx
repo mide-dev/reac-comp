@@ -10,6 +10,7 @@ const links = [
 const MenuDropdownCustom = () => {
   const [open, setOpen] = useState(false);
   const mouseClickRef = useRef(null);
+  const buttonRef = useRef(null);
 
   // Handle ESC key press
   useEffect(() => {
@@ -22,21 +23,27 @@ const MenuDropdownCustom = () => {
   });
 
   // Handle outside mouse click
-  const detectMouseClick = (ref) => {
+  const detectMouseClick = (ref, button) => {
     useEffect(() => {
       function handleMouseClick(event) {
-        if (ref.current && !ref.current.contains(event.target)) {
+        if (
+          ref.current &&
+          !ref.current.contains(event.target) &&
+          !button.current.contains(event.target)
+        ) {
           setOpen(false);
         }
       }
 
       // bind event listner
       document.addEventListener("mousedown", handleMouseClick);
+
+      return () => document.removeEventListener("mousedown", handleMouseClick);
     }, [ref]);
   };
 
   // call the click function
-  detectMouseClick(mouseClickRef);
+  detectMouseClick(mouseClickRef, buttonRef);
 
   return (
     <div className="flex-1">
@@ -45,11 +52,10 @@ const MenuDropdownCustom = () => {
       </h1>
       <div className="relative">
         <button
+          ref={buttonRef}
           className="text-white font-semibold mb-2 
             px-4 py-2 bg-black bg-opacity-30 rounded-md"
-          onClick={() => {
-            setOpen(!open);
-          }}
+          onClick={() => setOpen(!open)}
         >
           Options
         </button>
