@@ -22,7 +22,7 @@ const MenuDropdownCustom = () => {
     document.addEventListener("keydown", detectKeyDown);
   });
 
-  // Handle outside mouse click
+  // Handle outside mouse close
   const detectMouseClick = (ref, button) => {
     useEffect(() => {
       function handleMouseClick(event) {
@@ -35,15 +35,86 @@ const MenuDropdownCustom = () => {
         }
       }
 
-      // bind event listner
       document.addEventListener("mousedown", handleMouseClick);
 
       return () => document.removeEventListener("mousedown", handleMouseClick);
     }, [ref]);
   };
 
-  // call the click function
+  // call the outside mouse close function
   detectMouseClick(mouseClickRef, buttonRef);
+
+  // Arrow keys navigation
+  const useKeyPress = (targetKey) => {
+    const [keyPressed, setKeyPress] = useState(false);
+
+    function downHandler({ key }) {
+      if (key === targetKey) {
+        setKeyPress(true);
+      }
+    }
+
+    function upHandler({ key }) {
+      if (key === targetKey) {
+        setKeyPress(false);
+      }
+    }
+
+    useEffect(() => {
+      document.addEventListener("keydown", downHandler);
+      document.addEventListener("keyup", upHandler);
+
+      return () => {
+        document.removeEventListener("keydown", downHandler);
+        document.removeEventListener("keyup", upHandler);
+      };
+    });
+
+    return keyPressed;
+  };
+
+  const downPress = useKeyPress("ArrowDown");
+  const upPress = useKeyPress("ArrowUp");
+  const enterPress = useKeyPress("Enter");
+  const [cursor, setCursor] = useState(0);
+  const [navigate, setNavigate] = useState("");
+  const [hovered, setHovered] = useState(undefined);
+
+  // when down arrow pressed
+  useEffect(() => {
+    if (links.length && downPress) {
+      setCursor((prevState) => (prevState > 0 ? prevState + 1 : prevState));
+    }
+  }, [downPress]);
+
+  // when up arrow pressed
+  useEffect(() => {
+    if (links.length && upPress) {
+      setCursor((prevState) =>
+        prevState < links.length - 1 ? prevState - 1 : prevState
+      );
+    }
+  }, [upPress]);
+
+  // when Enter pressed
+  useEffect(() => {
+    if (links.length && enterPress) {
+      setNavigate(links[cursor]);
+    }
+  }, [enterPress]);
+
+  // on mouse hover
+  useEffect(() => {
+    if (links.length && hovered) {
+      setCursor(links.indexOf(hovered));
+    }
+  }, [hovered]);
+
+  // handling links display functionality as a seperate component
+  // prettier-ignore
+  // const DisplayLink = ({val, active, setNavigate, setHovered}) => {
+
+  // }
 
   return (
     <div className="flex-1">
@@ -71,14 +142,26 @@ const MenuDropdownCustom = () => {
               className={`${i === links.length - 1 ? "mb-1" : "mb-0"} my-1`}
             >
               <a
-                href="#"
+                href={navigate}
                 className={`${
                   val.disabled
                     ? "text-gray-400 cursor-default"
                     : "text-gray-800 cursor-pointer hover:bg-gray-300"
-                } p-2 block`}
+                  } 
+                  ${i === cursor ? "active" : ""}
+                  p-2 block`}
+                onMouseEnter={() => (setHovered(val))}
+                onMouseLeave={() => setHovered(undefined)}
+                onClick = {() => {setNavigate(val.link)}}
               >
                 {val.link}
+                {/* <DisplayLink
+                  val={val}
+                  key={val.link}
+                  // active={}
+                  setNavigate={setNavigate}
+                  setHovered={setHovered}
+                /> */}
               </a>
             </li>
           ))}
